@@ -12,7 +12,7 @@ Además recomendamos la utilización de [RStudio](https://www.rstudio.com/produc
 
 ---
 # Contenidos prácticos del curso
-1. [Introducción a R](https://github.com/lecastaneda/Bioestadistica/blob/main/Intro_R.R)
+1. [Introducción a R](https://github.com/BioCastaneda/Bioestadistica/blob/main/Introducci%C3%B3n%20R.R)
 2. [Práctico 1: análisis de frecuencia](https://github.com/lecastaneda/Bioestadistica/blob/main/Pr%C3%A1ctico%201.md)
 3. Práctico 2: comparación entre dos grupos (actividad realizada por el Dr. Cristian Araneda).
 4. [Práctico 3: comparación de múltiples grupos I](https://github.com/lecastaneda/Bioestadistica/blob/main/Pr%C3%A1ctico3.md)
