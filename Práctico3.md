@@ -1,6 +1,6 @@
 # Práctico 3: Comparación de múltiples grupos
 
-En este práctico realizaremos diversos análisis de comparación de múltiples grupos en R. Primero, realizaremos análisis de un factor (ANOVA paramétrico y Kruskal-Wallis no paramétrico). Luego, realizaremos un diseño factorial de dos vías (ANOVA de dos vías). 
+En este práctico realizaremos diversos análisis de comparación de múltiples grupos en R. Primero, realizaremos análisis de un factor (ANOVA paramétrico y Kruskal-Wallis no paramétrico). 
 
 ---
 
@@ -8,7 +8,7 @@ En este práctico realizaremos diversos análisis de comparación de múltiples 
 
 1. [Análisis paramétrico de una vía](https://github.com/lecastaneda/Bioestadistica/blob/main/Pr%C3%A1ctico2.md#1-an%C3%A1lisis-param%C3%A9trico-de-una-v%C3%ADa)
 2. [Análisis no-paramétrico de una vía](https://github.com/lecastaneda/Bioestadistica/blob/main/Pr%C3%A1ctico2.md#2-an%C3%A1lisis-no-param%C3%A9trico-de-una-v%C3%ADa)
-3. [Análisis factorial](https://github.com/lecastaneda/Bioestadistica/blob/main/Pr%C3%A1ctico2.md#3-an%C3%A1lisis-factorial)
+
 
 ---
 ## 1. Análisis paramétrico de una vía
@@ -119,7 +119,7 @@ plot6
 ggarrange(plot5, plot6, labels=c("A","B"), ncol=2, nrow=1)
 ```
 
-Independiente si analizamos los datos originles o transformados (log10), podemos concluir que hay diferencias significativas en el tiempo de respuesta de los antibióticos. Sin emabrgo, no podemos saber (aún) si todos los antibióticos tienen una respuesta distinta entre ellos o solo algunos de ellos difieren.
+Independiente si analizamos los datos originles o transformados (log10), podemos concluir que hay diferencias significativas en el tiempo de respuesta de los antibióticos. Sin embargo, no podemos saber (aún) si todos los antibióticos tienen una respuesta distinta entre ellos o solo algunos de ellos difieren.
 
 **4. Comparaciones múltiple**
 
@@ -272,14 +272,9 @@ Claramente los datos no se adjustan a una distribución normal por lo que debemo
 ```
 kt <- kruskal.test(score~year, data=data2a)
 ```
-Vamos a agregar una función con la cual si la prueba de Kruskal-Walis resulta significativa (p<0.05), automáticamente se prodecerá a realizar una prueba por parejas corregida por el método de la tasa de descubrimiento falsa (FDR)
+Luego vamos a realizar una prueba por parejas corregida por el método de la tasa de descubrimiento falso-positivo (FDR)
 ```
-if(kt$p.value < 0.05){
-  pt.fdr <- pairwise.wilcox.test(data2a$score, g=data2a$year,
-                             p.adjust.method="fdr")
-}
-kt
-pt.fdr
+pairwise.wilcox.test(data2a$score, g=data2a$year, p.adjust.method="fdr")
 ```
 
 Dado que los datos no son normales, la mejor opción de graficarlos es con un gráfico de caja-bigote.
@@ -299,132 +294,3 @@ plot14 + stat_pvalue_manual(post.fdr,label="p.adj.signif",tip.length = 0.02,
                             y.position=c(6.7,7.5,7.7,7,7.2,6.8))
 ```
 
----
-## 3. Análisis factorial
-
-Descargar los datos contenidos en el archivo Excel [Resistencia](https://github.com/lecastaneda/Bioestadistica/blob/main/Resistencia.xlsx)
-
-Este set datos corresponde a un experimento para evaluar el efecto de la microbiota intestinal y el sexo sobre la resistencia térmica en *Drosophila melanogaster*. ¿Hay efectos de la microbiota y/o el sexo sobre la resistencia térmica? ¿Estos factores interactúan entre sí?
-
-```
-## Cargar los datos
-data3 <- read_xlsx("Resistencia.xlsx")
-head(data3)
-str(data3)
-#
-## Asginar columnas como factores
-data3$sex <- as.factor(data3$sex)
-data3$treat <- as.factor(data3$treat)
-```
-
-Estimar las media, desviación estándar. tamaño muestreal para ambos factore
-```
-with(data3,tapply(timeko,list(treat,sex),mean))
-with(data3,tapply(timeko,list(treat,sex),sd))
-with(data3,tapply(timeko,list(treat,sex),length))
-```
-
-Gráfico rápido para evaluar tendencias
-```
-library(ggpubr)
-ggboxplot(data3, x="sex", y="timeko", color="treat")
-```
-
-Probamos la normalidad
-```
-shapiro.test(data3$timeko)
-plot15 <- gghistogram(data3$timeko, bins=10, title="Histograma datos originales", fill="blue", add="mean")
-plot15
-plot16 <- ggqqplot(data3$timeko, col="blue", main="QQplot datos originales")
-plot16
-
-ggarrange(plot15, plot16, labels=c("A","B"), ncol=2, nrow=1)
-```
-
-Probamos la homocedasticidad
-```
-library(car)
-leveneTest(timeko ~ sex*treat, data=data3)
-````
-
-Dado que los datos son normales y homocedásticos, procedemos a analizar los datos con una ANOVA de dos vías
-```
-m1 <- lm(timeko ~ treat*sex, data=data3)
-anova(m1)
-#
-## Prueba a posteriori de Tukey
-tukey.test2 <- data3 %>% tukey_hsd(timeko ~ treat*sex)
-tukey.test2
-```
-
-Graficamos
-```
-plot17 <- ggboxplot(data3, x="treat", y="timeko", color="sex", ylim=c(0,65),
-                    add="jitter", xlab="Treatment", ylab="Knockdown time (min)", 
-                    legend="right", palette=c("blue","purple"))
-plot17
-```
-
-Agregamos los símbolos de significancia
-```
-plot17 + stat_pvalue_manual(tukey.test2,label="p.adj.signif",tip.length = 0.02, 
-                              y.position=c(65,64,63,62,61,60,59,58))
-```
-
-Esta opción requiere ingresar los valores de todas las combinaciones, pero no es lo que queremos, así que lo haremos manualmente.
-```
-plot17 + geom_line(data=tibble(x=c(1, 2), y=c(63, 63)),
-            aes(x=x, y=y),
-            inherit.aes=FALSE)+
-        geom_text(data=tibble(x=1.5, y=64),
-            aes(x=x, y=y, label="****"), size=4,
-            inherit.aes=FALSE)+
-        geom_line(data=tibble(x=c(0.8, 1.2), y=c(40, 40)),
-            aes(x=x, y=y),
-            inherit.aes=FALSE)+
-        geom_text(data=tibble(x=1, y=43),
-            aes(x=x, y=y, label="ns"), size=4,
-            inherit.aes=FALSE)+
-        geom_line(data=tibble(x=c(1.8, 2.2), y=c(54,54)),
-            aes(x=x, y=y),
-            inherit.aes=FALSE)+
-        geom_text(data=tibble(x=2, y=57),
-            aes(x=x, y=y, label="ns"), size=4,
-            inherit.aes=FALSE)
- ```
- 
-Opción para graficar las líneas de tendencia
-
-1. Ejecutamos esta función para calcular medias y desviaciones estándares para cada combinación.
-```
-data_summary <- function(data, varname, groupnames){
-  require(plyr)
-  summary_func <- function(x, col){
-    c(mean = mean(x[[col]], na.rm=TRUE),
-      sd = sd(x[[col]], na.rm=TRUE))
-  }
-  data_sum<-ddply(data, groupnames, .fun=summary_func,
-                  varname)
-  data_sum <- rename(data_sum, c("mean" = varname))
-  return(data_sum)
-}
-```
-
-2. Luego ingresamos la información de nuestros datos.
-```
-df2 <- data_summary(data3, varname="timeko", 
-                    groupnames=c("sex", "treat"))
-```
-
-3. Graficamos.
-```
-plot18 <- ggplot(df2, aes(x=treat, y=timeko, group=sex, color=sex)) + 
-          geom_line(position=position_dodge(0.1)) +
-          geom_point(position=position_dodge(0.1))+
-          geom_errorbar(aes(ymin=timeko-sd, ymax=timeko+sd), width=.1,
-                position=position_dodge(0.1))+
-          labs(x="Treatment", y = "Knockdown time (min)")+
-          theme_classic()+
-          theme(axis.text.x = element_markdown())
-plot18
-```
