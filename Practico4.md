@@ -57,7 +57,7 @@ shapiro.test(data3$timeko)
 plot1 <- gghistogram(data3$timeko, bins=10, title="Histograma datos originales", fill="blue", add="mean")
 plot1
 plot2 <- ggqqplot(data3$timeko, col="blue", main="QQplot datos originales")
-plot12
+plot2
 
 ggarrange(plot1, plot2, labels=c("A","B"), ncol=2, nrow=1)
 ```
@@ -109,12 +109,10 @@ plot4 <- data3 %>%
         axis.title.x = element_text(size=12, colour = "black", vjust=-1),
         axis.title.y = element_text(size=12, colour = "black", vjust=2),
         legend.position = "right")
-quartz(12,8)
 plot4
 ``` 
 Agregamos los símbolos de significancia
 ```
-quartz(12,8)
 plot4 + stat_pvalue_manual(tukey.test2,label="p.adj.signif",tip.length = 0.02, 
                               y.position=c(65,64,63,62,61,60,59,58))
 ```
@@ -204,6 +202,5 @@ plot6 <- ggplot(df3, aes(x=Time, y=weight, group=Diet, color=Diet)) +
                 position=position_dodge(0.8))+
   labs(x="Age (d)", y = "Weight")+
   theme_classic()
-quartz(10,8)
 plot6
 ```
