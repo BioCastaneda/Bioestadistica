@@ -48,7 +48,6 @@ tabla1
 Gráfico rápido para evaluar tendencias
 ```
 library(ggpubr)
-quartz(12,8)
 ggboxplot(data3, x="sex", y="timeko", color="treat")
 ```
 
