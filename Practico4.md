@@ -118,27 +118,7 @@ plot4 + stat_pvalue_manual(tukey.test2,label="p.adj.signif",tip.length = 0.02,
 ```
 
 Esta opción requiere ingresar los valores de todas las combinaciones, pero no es lo que queremos, así que lo haremos manualmente.
-```
-plot4 + geom_line(data=tibble(x=c(1, 2), y=c(63, 63)),
-            aes(x=x, y=y),
-            inherit.aes=FALSE)+
-        geom_text(data=tibble(x=1.5, y=64),
-            aes(x=x, y=y, label="****"), size=4,
-            inherit.aes=FALSE)+
-        geom_line(data=tibble(x=c(0.8, 1.2), y=c(40, 40)),
-            aes(x=x, y=y),
-            inherit.aes=FALSE)+
-        geom_text(data=tibble(x=1, y=43),
-            aes(x=x, y=y, label="ns"), size=4,
-            inherit.aes=FALSE)+
-        geom_line(data=tibble(x=c(1.8, 2.2), y=c(54,54)),
-            aes(x=x, y=y),
-            inherit.aes=FALSE)+
-        geom_text(data=tibble(x=2, y=57),
-            aes(x=x, y=y, label="ns"), size=4,
-            inherit.aes=FALSE)
- ```
- 
+     
 Opción para graficar las líneas de tendencia
 
 1. Ejecutamos esta función para calcular medias y desviaciones estándares para cada combinación.
