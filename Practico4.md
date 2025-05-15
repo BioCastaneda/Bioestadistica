@@ -28,10 +28,6 @@ data3$treat <- as.factor(data3$treat)
 
 Estimar las media, desviación estándar. tamaño muestreal para ambos factore
 ```
-with(data3,tapply(timeko,list(treat,sex),mean))
-with(data3,tapply(timeko,list(treat,sex),sd))
-with(data3,tapply(timeko,list(treat,sex),length))
-
 ## Cargar librería dplyr para confeccionar tablas
 library(dplyr)
 
