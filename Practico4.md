@@ -94,13 +94,13 @@ plot4 <- data3 %>%
   stat_summary(show.legend=F, fun=mean, geom="crossbar", size=0.4, 
                col="black", width=0.5, position=position_dodge(width=0.6)) + 
   scale_y_continuous(breaks=seq(0,50,10))+
-  labs(x="Treatment",y="Knockdown tiem (min)")+
+  labs(x="Treatment",y="Knockdown time (min)")+
   scale_fill_discrete(name="Sex")+
   theme_classic()+
   theme(axis.text.x = element_text(size=10, colour = "black"),
         axis.text.y = element_text(size=10, colour = "black"),
-        axis.title.x = element_text(size=12, colour = "black", vjust=-1),
-        axis.title.y = element_text(size=12, colour = "black", vjust=2),
+        axis.title.x = element_text(size=12, colour = "black"),
+        axis.title.y = element_text(size=12, colour = "black"),
         legend.position = "right")
 plot4
 ``` 
