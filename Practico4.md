@@ -71,8 +71,8 @@ anova(m1)
 #
 ## Prueba a posteriori de Tukey
 library(rstatix)
-tukey.test2 <- data3 %>% tukey_hsd(timeko ~ treat*sex)
-tukey.test2
+tukey.test1 <- data3 %>% tukey_hsd(timeko ~ treat*sex)
+tukey.test1
 ```
 
 Graficamos
