@@ -66,8 +66,8 @@ leveneTest(timeko ~ sex*treat, data=data3)
 
 Dado que los datos son normales y homocedásticos, procedemos a analizar los datos con una ANOVA de dos vías
 ```
-m1 <- aov(timeko ~ treat*sex, data=data3)
-summary(m1)
+m1 <- lm(timeko ~ treat*sex, data=data3)
+anova(m1)
 #
 ## Prueba a posteriori de Tukey
 library(rstatix)
