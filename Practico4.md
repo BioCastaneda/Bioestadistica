@@ -89,8 +89,8 @@ set.seed(08061980)
 plot4 <- data3 %>%
   ggplot(aes(x=treat, y=timeko, fill=sex))+
   geom_jitter(show.legend=T, 
-              position=position_jitterdodge(jitter.width=0.4, dodge.width=0.6),
-              shape=21, color="black", size=3) +
+              position=position_jitterdodge(jitter.width=0.3, dodge.width=0.6),
+              shape=21, color="black", size=3, alpha=0.8) +
   stat_summary(show.legend=F, fun=mean, geom="crossbar", size=0.4, 
                col="black", width=0.5, position=position_dodge(width=0.6)) + 
   scale_y_continuous(breaks=seq(0,50,10))+
