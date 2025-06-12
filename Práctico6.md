@@ -142,13 +142,7 @@ plot1+stat_pvalue_manual(test1b,label="p.adj.signif",tip.length = 0.01)
 Usaremos el mismo set de datos deascargado anteriormente.
 
 ```
-data1 <- read.table("Suelos.txt", header=T)
-head(data1)
-data2 <- data1[,-c(1,2)]
-cor.mat <- data2 %>% cor_mat()
-cor.mat
-cor.mat %>% cor_get_pval()
-cor.mat %>% cor_mark_significant()
+)
 
 ## Realizar el PCA
 pca <- prcomp(data1, scale=T)  # scale=T porque las variables están en distintas unidades
