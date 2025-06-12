@@ -139,67 +139,82 @@ plot1+stat_pvalue_manual(test1b,label="p.adj.signif",tip.length = 0.01)
 ---
 ## 2. Análisis de componentes principales
 
-Usaremos el mismo set de datos deascargado anteriormente.
+Descargar los datos contenidos en el archivo de texto [Phylum](https://github.com/BioCastaneda/Inverskin/blob/main/archivos/DSdata_phylum.xlsx)
 
+Este set de datos contiene las abundancias (relativas y absolutas) de bacterias asociadas al intestito de Drosophila subobscura a nivel taxonómico de phylum.
+
+Analizamos las correlaciones entre variables
 ```
-)
+library(ggpubr)
+library(car)
+library(readxl)
+library(factoextra)
+library(FactoMineR)
 
-## Realizar el PCA
-pca <- prcomp(data1, scale=T)  # scale=T porque las variables están en distintas unidades
-summary(pca)
-plot(pca)   # Grafica la varianza explicada por cada PCs
-biplot(pca) # Gráfico básico de los vectores asociados las variables respuesta y la ubicación espacial de las muestras
-
-## Obtener información del PCA
-names(pca)
-pca$sdev # sd (varianza) explicada por cada PC
-pca$rotation  # contribución de cada variable a cada PC
-pca$center   # valor usado para centrar (media)
-pca$scale  # valor usado para escalar (sd)
-pca$x   # coordenadas para cada muestra
+data1 <- read_xlsx("DSdata_phylum.xlsx")
+head(data1)
+dim(data1)
+str(data1)
 #
-## Crear dos variables (PC1 y PC2) para graficar las muestras en el gráfico del PCA
-PC1 <- pca$x[,1]
-PC2 <- pca$x[,2]
-
-## Grafiquemos nuevamente, pero ahora solo los vectores
-biplot(pca,col="purple",xlim=c(-0.5,0.5),ylim=c(-0.5,0.5),las=1,cex=1)  ### ????
-biplot(pca,col=c("white","purple"),xlim=c(-0.5,0.5),ylim=c(-0.5,0.5),las=1,cex=1)
-#
-## Agreguemos las muestras sobre el mismo gráfico, pero en vez de números graficaremos puntos de colores
-col <- c(rep("red",3),rep("blue",3),rep("black",3),rep("green",3),rep("orange",3))
-par(new=T)
-plot(PC1,PC2,pch=21,bg=col,cex=1.5,bty="o")   # Valores de los ejes duplicados
-#
-plot(PC1, PC2, pch=21, bg=col, cex=1.5, bty="o", las=1, xlim=c(-5,5), ylim=c(-3,3))
-par(new=T)
-biplot(pca, col=c("white","purple"), cex=1,xaxt="n",yaxt="n")
-legend(2.5,-2, c("Catanli","Huillilemu","LasPalmas","Neltume","Pelchuquín"), bty="n", pch=21, cex=1, pt.bg=c("red","blue","black","green","orange"), y.intersp=0.2)
+## Seleccionamos las columnas con las abundancias absolutas
+data2 <- data1[,c(9:13)]
+cor.mat <- data2 %>% cor_mat()
+cor.mat %>% pull_lower_triangle() %>% cor_plot()
 ```
 
-Análicemos cómo varía PC1 entre los distintos sitios
-
+Realicemos el PCA
 ```
-data1$PC1 <- PC1   # Agregar la variable PC1 al dataset "data"
+ds.pca <- PCA(data2, graph=F)
+
+## Calcular los eigenvalues para cada componente principal
+ds.pca$eig
+
+# Calcular la contribución de las variables originales a cada uno de los componentes principales
+ds.pca$var$coord
+
+# Calcular las coordenadasde cada muestra respecto a los componentes principales
+ds.pca$ind$coord
+```
+
+Grafiquemos la varianza explicada por los componentes principales
+```
+fviz_eig(ds.pca, addlabels = TRUE, ylim = c(0, 80))
+```
+
+Grafiquemos los componentes principales 1 y2 
+```
+plot.pca <- fviz_pca_biplot(ds.pca, 
+                            # Individuals
+                            geom.ind = "point",
+                            fill.ind = data1$Stress, col.ind = "black",
+                            pointshape = 21, pointsize = 2,
+                            palette = c("red","blue"),
+                            # Variables
+                            alpha.var=1, col.var = "black",
+                            gradient.cols = "black",
+                            legend.title = list(fill = "Stress"))
+
+plot.pca
+```
+
+Análicemos cómo varía PC1 entre ambos tratamientos
+```
+# Vamos a crear una matriz con los datos de coordendas 
+pca.coord <- as.matrix(ds.pca$ind$coord)
+
+
+data1$PC1 <- pca.coord[,1]   # Agregar la variable PC1 al dataset "data"
+
 shapiro.test(data1$PC1)  # Prubea de normalidad
 ggqqplot(data1$PC1)
 leveneTest(data1$PC1 ~ data1$site)  # Prueba de homocedasticidad
-#
+
 ## ANOVA usando el PC1
 test3 <- aov(PC1 ~ site, data=data1)
-anova(test3)    # Resultado
-TukeyHSD(test3) # Comparación a posteriori
-```
+anova(test3)    
+kruskal.test(PC1 ~ Stress, data=data1)
 
-Grafiquemos!
+# Gráfico
+ggboxplot(data1, x="Stress", y="PC1", col="black", ylab="PC1", xlab="Sitios", add="jitter")
 
-```
-ggboxplot(data1, x="site", y="PC1", col="black", ylab="PC1", xlab="Sitios", add="jitter")
-#
-## Reordenar grupos, graficar y agregar símbolos de significancia
-data1$site <- factor(data1$site, levels=c("LasPalmas","Pelchuquin","Neltume","Catanli","Huillilemu"))
-plot2 <- ggboxplot(data1, x="site", y="PC1", col="black", ylab="PC1", xlab="Sitios", add="jitter")
-plot2
-plot2 + stat_pvalue_manual(tukey.test,label="p.adj.signif",tip.length = 0.02, 
-                            y.position=c(NA,NA,4.8,5.4,NA,3.6,4.2,NA,NA,NA))
 ```
